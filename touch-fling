@@ -89,7 +89,7 @@ local function createFlingGui()
 
 	UserInputService.InputBegan:Connect(function(input, processed)
 		if processed then return end
-		if input.KeyCode == Enum.KeyCode.R then
+		if input.KeyCode == Enum.KeyCode.T then
 			toggleFling()
 		end
 	end)
