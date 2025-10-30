@@ -1,0 +1,88 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local LocalPlayer = Players.LocalPlayer
+local flingActive = false
+local flingThread
+
+local function createFlingGui()
+	if game.CoreGui:FindFirstChild("TouchFlingGUI") then
+		game.CoreGui.TouchFlingGUI:Destroy()
+	end
+
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "TouchFlingGUI"
+	screenGui.Parent = game.CoreGui
+	screenGui.ResetOnSpawn = false
+
+	local mainFrame = Instance.new("Frame", screenGui)
+	mainFrame.Size = UDim2.new(0, 250, 0, 140)
+	mainFrame.Position = UDim2.new(0.5, -125, 0.6, 0)
+	mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+	mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	mainFrame.Active = true
+	mainFrame.Draggable = true
+	Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
+
+	local title = Instance.new("TextLabel", mainFrame)
+	title.Text = "Touch Fling"
+	title.Size = UDim2.new(0.8, 0, 0, 30)
+	title.Position = UDim2.new(0.1, 0, 0, 0)
+	title.BackgroundTransparency = 1
+	title.TextColor3 = Color3.fromRGB(255, 255, 255)
+	title.TextScaled = true
+	title.Font = Enum.Font.GothamBold
+
+	local closeButton = Instance.new("TextButton", mainFrame)
+	closeButton.Text = "X"
+	closeButton.Size = UDim2.new(0.15, 0, 0, 25)
+	closeButton.Position = UDim2.new(0.83, 0, 0.05, 0)
+	closeButton.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
+	closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+	closeButton.Font = Enum.Font.GothamBold
+	closeButton.TextScaled = true
+	Instance.new("UICorner", closeButton).CornerRadius = UDim.new(0, 8)
+
+	closeButton.MouseButton1Click:Connect(function()
+		flingActive = false
+		screenGui:Destroy()
+	end)
+
+	local flingButton = Instance.new("TextButton", mainFrame)
+	flingButton.Size = UDim2.new(0.6, 0, 0, 40)
+	flingButton.Position = UDim2.new(0.2, 0, 0.35, 0)
+	flingButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	flingButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+	flingButton.Font = Enum.Font.Gotham
+	flingButton.TextScaled = true
+	flingButton.Text = "Status: OFF"
+	Instance.new("UICorner", flingButton).CornerRadius = UDim.new(0, 8)
+
+	local function fling()
+		local lp = LocalPlayer
+		while flingActive do
+			RunService.Heartbeat:Wait()
+			local char = lp.Character
+			local hrp = char and char:FindFirstChild("HumanoidRootPart")
+			if hrp then
+				local vel = hrp.Velocity
+				hrp.Velocity = vel * 10000 + Vector3.new(0, 10000, 0)
+				RunService.RenderStepped:Wait()
+				hrp.Velocity = vel
+			end
+		end
+	end
+
+	flingButton.MouseButton1Click:Connect(function()
+		flingActive = not flingActive
+		flingButton.Text = flingActive and "Status: ON" or "Status: OFF"
+
+		if flingActive then
+			flingThread = coroutine.create(fling)
+			coroutine.resume(flingThread)
+		end
+	end)
+end
+
+createFlingGui()
