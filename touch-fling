@@ -1,10 +1,11 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
 
 local LocalPlayer = Players.LocalPlayer
 local flingActive = false
 local flingThread
+local flingButton
 
 local function createFlingGui()
 	if game.CoreGui:FindFirstChild("TouchFlingGUI") then
@@ -49,7 +50,7 @@ local function createFlingGui()
 		screenGui:Destroy()
 	end)
 
-	local flingButton = Instance.new("TextButton", mainFrame)
+	flingButton = Instance.new("TextButton", mainFrame)
 	flingButton.Size = UDim2.new(0.6, 0, 0, 40)
 	flingButton.Position = UDim2.new(0.2, 0, 0.35, 0)
 	flingButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
@@ -74,13 +75,22 @@ local function createFlingGui()
 		end
 	end
 
-	flingButton.MouseButton1Click:Connect(function()
+	local function toggleFling()
 		flingActive = not flingActive
 		flingButton.Text = flingActive and "Status: ON" or "Status: OFF"
 
 		if flingActive then
 			flingThread = coroutine.create(fling)
 			coroutine.resume(flingThread)
+		end
+	end
+
+	flingButton.MouseButton1Click:Connect(toggleFling)
+
+	UserInputService.InputBegan:Connect(function(input, processed)
+		if processed then return end
+		if input.KeyCode == Enum.KeyCode.R then
+			toggleFling()
 		end
 	end)
 end
